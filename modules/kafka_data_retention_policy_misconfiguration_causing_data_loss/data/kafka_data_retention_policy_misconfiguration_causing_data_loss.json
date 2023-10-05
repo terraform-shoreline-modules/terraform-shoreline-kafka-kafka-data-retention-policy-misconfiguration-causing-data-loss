@@ -1,0 +1,126 @@
+{
+  "name": "kafka_data_retention_policy_misconfiguration_causing_data_loss",
+  "description": "This incident type occurs when there is a misconfiguration in the kafka data retention policy. Kafka is a distributed streaming platform that is designed to handle high volume data streams. It has a feature that allows the user to set a retention policy, which determines how long to keep the data in the kafka cluster. If the retention policy is misconfigured, it can lead to data loss, meaning that some data is deleted from the kafka cluster before the intended expiration date. This incident can have serious consequences on the applications that depend on the kafka cluster for processing and analyzing the data.",
+  "params": [
+    {
+      "name": "RETENTION_PERIOD_DAYS",
+      "value": ""
+    },
+    {
+      "name": "DATA_VOLUME_IN_BYTES",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_KAFKA_CONFIGURATION_FILE",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_NODE",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_KAFKA_DATA_RETENTION_POLICY_FILE",
+      "value": ""
+    },
+    {
+      "name": "CORRECT_RETENTION_POLICY",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_LOG_PATH",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kafka Data Retention Policy Misconfiguration Causing Data Loss.\nThis incident type occurs when there is a misconfiguration in the kafka data retention policy. Kafka is a distributed streaming platform that is designed to handle high volume data streams. It has a feature that allows the user to set a retention policy, which determines how long to keep the data in the kafka cluster. If the retention policy is misconfigured, it can lead to data loss, meaning that some data is deleted from the kafka cluster before the intended expiration date. This incident can have serious consequences on the applications that depend on the kafka cluster for processing and analyzing the data."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Step 2: Check Kafka configuration"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat ${PATH_TO_KAFKA_CONFIGURATION_FILE}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Step 1: Check if Kafka is running"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status kafka`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Step 3: Check Kafka data retention policy"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat ${PATH_TO_KAFKA_DATA_RETENTION_POLICY_FILE}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Step 4: Check Kafka logs for data loss errors"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `grep \"data loss\" ${KAFKA_LOG_PATH}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## The retention period was set too high, causing the Kafka disks to fill up and overwrite the oldest data."
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_disk_check($RETENTION_PERIOD_DAYS, $DATA_VOLUME_IN_BYTES, $PATH_TO_KAFKA_CONFIGURATION_FILE, $KAFKA_NODE, $KAFKA_LOG_PATH)"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the current Kafka data retention policy and ensure it is set correctly."
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_retention_policy_script($PATH_TO_KAFKA_CONFIGURATION_FILE, $CORRECT_RETENTION_POLICY)"
+    }
+  ]
+}
