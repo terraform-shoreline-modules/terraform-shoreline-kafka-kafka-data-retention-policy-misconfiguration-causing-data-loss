@@ -1,0 +1,142 @@
+{
+  "name": "kafka_data_loss_incident",
+  "description": "The Kafka Data Loss Incident refers to an incident where there is a misconfiguration of the data retention policy in Kafka, which can result in data loss. Kafka is a distributed streaming platform that is commonly used in big data environments. When data retention policies are misconfigured, data that should be retained is deleted, or data that should be deleted is retained. This can lead to significant data loss and can have serious consequences for businesses that rely on the data stored in Kafka.",
+  "params": [
+    {
+      "name": "PATH_TO_KAFKA_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "ZOOKEEPER_HOST",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_KAFKA_CONFIG",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_BROKER_PORT",
+      "value": ""
+    },
+    {
+      "name": "ZOOKEEPER_PORT",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_KAFKA_LOGS",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_BROKER_HOST",
+      "value": ""
+    },
+    {
+      "name": "DESIRED_DATA_RETENTION_POLICY",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kafka Data Loss Incident\nThe Kafka Data Loss Incident refers to an incident where there is a misconfiguration of the data retention policy in Kafka, which can result in data loss. Kafka is a distributed streaming platform that is commonly used in big data environments. When data retention policies are misconfigured, data that should be retained is deleted, or data that should be deleted is retained. This can lead to significant data loss and can have serious consequences for businesses that rely on the data stored in Kafka."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if Kafka is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status kafka`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Kafka logs for any errors"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u kafka --since \"10 minutes ago\"`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the Kafka retention policy is configured correctly"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat ${PATH_TO_KAFKA_CONFIG}/server.properties | grep log.retention.bytes`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the disk usage of the Kafka logs"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `du -sh ${PATH_TO_KAFKA_LOGS}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the topic in question is still available"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `kafka-topics --list --zookeeper ${ZOOKEEPER_HOST}:${ZOOKEEPER_PORT}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Kafka brokers"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `kafka-broker-api-versions --bootstrap-server ${KAFKA_BROKER_HOST}:${KAFKA_BROKER_PORT}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Review and update Kafka's data retention policy to ensure that it is correctly configured and aligned with your data retention requirements."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_retention_policy($PATH_TO_KAFKA_CONFIG_FILE, $DESIRED_DATA_RETENTION_POLICY)"
+    }
+  ]
+}

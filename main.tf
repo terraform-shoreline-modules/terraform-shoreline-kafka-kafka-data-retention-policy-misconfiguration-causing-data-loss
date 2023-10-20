@@ -14,8 +14,8 @@ provider "shoreline" {
   debug = true
 }
 
-module "kafka_data_retention_policy_misconfiguration_causing_data_loss" {
-  source    = "./modules/kafka_data_retention_policy_misconfiguration_causing_data_loss"
+module "kafka_data_loss_incident" {
+  source    = "./modules/kafka_data_loss_incident"
 
   providers = {
     shoreline = shoreline
